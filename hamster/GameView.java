@@ -64,17 +64,16 @@ class GameView extends JPanel {
         g2.setFont(new Font("SansSerif", Font.PLAIN, 12));
         g2.drawString("Space - Jump    P - Pause/Continue    R - Restart    Esc - Exit", 10, model.height - 10);
 
-        // обрабатываем паузы
-        if (model.isPaused() && !model.isGameOver()) {
-            drawCenteredOverlay(g2, "PAUSED\nPress P to continue");
-        }
-
-        // проигрыш
-        if (model.isGameOver()) {
-            drawCenteredOverlay(g2, "GAME OVER\nPress R to restart");
-        }
+        String overlay = getOverlayText();
+        if (overlay != null) drawCenteredOverlay(g2, overlay);
 
         g2.dispose();
+    }
+
+    String getOverlayText() {
+        if (model.isGameOver()) return "GAME OVER\nPress R to restart";
+        else if (model.isPaused() && !model.isGameOver()) return "PAUSED\nPress P to continue";
+        else return null;
     }
 
     private void drawCenteredOverlay(Graphics2D g2, String multiLine) {
