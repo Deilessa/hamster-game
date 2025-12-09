@@ -8,11 +8,11 @@ class GameModel {
     final int width;
     final int height;
 
-    final int DINO_W = 40;
-    final int DINO_H = 40;
-    int dinoX;
-    double dinoY;
-    double dinoVy;
+    final int HAMSTER_W = 40;
+    final int HAMSTER_H = 40;
+    int hamsterX;
+    double hamsterY;
+    double hamsterVy;
     boolean onGround;
 
     //физика прыжка
@@ -43,10 +43,10 @@ class GameModel {
     }
 
     public void reset() {
-        dinoX = 60;
+        hamsterX = 60;
         groundY = height - 50;
-        dinoY = groundY - DINO_H;
-        dinoVy = 0;
+        hamsterY = groundY - HAMSTER_H;
+        hamsterVy = 0;
         onGround = true;
         obstacles.clear();
         obstacleSpeed = 6;
@@ -60,7 +60,7 @@ class GameModel {
     public void jump() {
         if (gameOver || paused) return;
         if (onGround) {
-            dinoVy = JUMP_POWER;
+            hamsterVy = JUMP_POWER;
             onGround = false;
         }
     }
@@ -69,55 +69,72 @@ class GameModel {
     public void update() {
         if (paused || gameOver) return;
 
-        // Physics update
-        dinoVy += GRAVITY;
-        dinoY += dinoVy;
-        if (dinoY >= groundY - DINO_H) { //Если коснулся земли — остановить, вернуть в точку
-            dinoY = groundY - DINO_H;
-            dinoVy = 0;
+        updateHamsterPhysics();
+        updateObstacles();
+        spawnObstaclesIfNeeded();
+        increaseDifficulty();
+        detectCollisions();
+
+        score++;
+    }
+
+    private void updateHamsterPhysics() {
+        hamsterVy += GRAVITY;
+        hamsterY += hamsterVy;
+
+        if (hamsterY >= groundY - HAMSTER_H) {
+            hamsterY = groundY - HAMSTER_H;
+            hamsterVy = 0;
             onGround = true;
         }
+    }
 
-        // Obstacles movement
-        Iterator<Rectangle> it = obstacles.iterator();
-        while (it.hasNext()) {
-            Rectangle r = it.next();
-            r.x -= obstacleSpeed;
-            if (r.x + r.width < 0) { //Ушли за экран → удалить + дать очки
-                it.remove();
+    private void updateObstacles() {
+        Iterator<Rectangle> iterator = obstacles.iterator();
+
+        while (iterator.hasNext()) {
+            Rectangle obstacle = iterator.next();
+            obstacle.x -= obstacleSpeed;
+
+            if (obstacle.x + obstacle.width < 0) {
+                iterator.remove();
                 score += 10;
             }
         }
+    }
 
-        // Spawn logic
+    private void spawnObstaclesIfNeeded() {
         spawnCounter++;
+
         if (spawnCounter >= nextSpawnIn) {
             spawnCounter = 0;
             nextSpawnIn = spawnIntervalMin + rnd.nextInt(spawnIntervalMax - spawnIntervalMin + 1);
             spawnObstacle();
         }
+    }
 
-        //увеличение сложности с ростом очков
+    private void increaseDifficulty() {
         if (score > 0 && score % 200 == 0) {
-            obstacleSpeed = 6 + (int) (score / 200);
+            obstacleSpeed = 6 + (int)(score / 200);
             if (obstacleSpeed > 18) obstacleSpeed = 18;
         }
+    }
 
+    private void detectCollisions() {
+        Rectangle hamsterRect = new Rectangle(hamsterX, (int)Math.round(hamsterY), HAMSTER_W, HAMSTER_H);
 
-score++;
-
-
-        Rectangle dinoRect = new Rectangle(dinoX, (int) Math.round(dinoY), DINO_W, DINO_H);
-        for (Rectangle r : obstacles) {
-            if (dinoRect.intersects(r)) {
+        for (Rectangle obstacle : obstacles) {
+            if (hamsterRect.intersects(obstacle)) {
                 gameOver = true;
-                paused = true;//проигрыш при столкновении
+                paused = true;
                 break;
             }
         }
     }
 
-//создаёт новый кактус
+
+
+    //создаёт новый кактус
     private void spawnObstacle() {
         // Randomize obstacle size
         int w = 20 + rnd.nextInt(30);
@@ -129,8 +146,8 @@ score++;
     }
 
 
-    public Rectangle getDinoBounds() {
-        return new Rectangle(dinoX, (int) Math.round(dinoY), DINO_W, DINO_H);
+    public Rectangle getHamsterBounds() {
+        return new Rectangle(hamsterX, (int) Math.round(hamsterY), HAMSTER_W, HAMSTER_H);
     }
 
     public ArrayList<Rectangle> getObstacles() {

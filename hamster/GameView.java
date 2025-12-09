@@ -45,10 +45,10 @@ class GameView extends JPanel {
         g2.fillRect(0, model.getGroundY(), model.width, model.height - model.getGroundY());
 
 
-        Image dinoImg = new ImageIcon(getClass().getResource("hamster_clean.png")).getImage();
-        Rectangle d = model.getDinoBounds();
-        int dinoSize = Math.max(d.width, d.height);
-        g2.drawImage(dinoImg, d.x, d.y, dinoSize, dinoSize, null);
+        Image hamsterImg = new ImageIcon(getClass().getResource("hamster_clean.png")).getImage();
+        Rectangle d = model.getHamsterBounds();
+        int hamsterSize = Math.max(d.width, d.height);
+        g2.drawImage(hamsterImg, d.x, d.y, hamsterSize, hamsterSize, null);
 
 // рисуем кактусы
         for (Rectangle r : model.getObstacles()) {
