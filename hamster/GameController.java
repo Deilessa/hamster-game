@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.event.*;
 
 // ---------------------------- CONTROLLER ----------------------------
-class GameController implements ActionListener, KeyListener, MouseListener {
+class GameController implements ActionListener {
     GameModel model;
     GameView view;
     Timer timer;
@@ -12,10 +12,10 @@ class GameController implements ActionListener, KeyListener, MouseListener {
     public GameController(GameModel model, GameView view) {
         this.model = model;
         this.view = view;
-        this.view.addKeyListener(this);
-        this.view.addMouseListener(this);
 
         timer = new Timer(1000 / FPS, this);
+        setupKeyBindings();
+        setupMouseBinding();
     }
 
     public void start() {
@@ -23,56 +23,46 @@ class GameController implements ActionListener, KeyListener, MouseListener {
         view.requestFocusInWindow();
     }
 
+    private void bind(String key, Runnable action) {
+        ActionMap am = view.getActionMap();
+        am.put(key, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                action.run();
+            }
+        });
+    }
+
+    public void setupKeyBindings() {
+        InputMap im = view.getInputMap();
+
+        bind("jump", model::jump);
+        bind("pause", model::togglePause);
+        bind("reset", model::reset);
+        bind("exit", () -> System.exit(0));
+        bind("mouseClick", () -> {if (model.isGameOver()) model.reset();});
+
+        im.put(KeyStroke.getKeyStroke("P"), "pause");
+        im.put(KeyStroke.getKeyStroke("R"), "reset");
+        im.put(KeyStroke.getKeyStroke("ESCAPE"), "exit");
+        im.put(KeyStroke.getKeyStroke("SPACE"), "jump");
+        im.put(KeyStroke.getKeyStroke("W"), "jump");
+        im.put(KeyStroke.getKeyStroke("BUTTON1"), "mouseClick");
+    }
+
+    private void setupMouseBinding() {
+        view.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Action a = view.getActionMap().get("mouseClick");
+                if (a != null) a.actionPerformed(null);
+            }
+        });
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        // game loop tick
         model.update();
         view.repaint();
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-    }
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        int kc = e.getKeyCode();
-        if (kc == KeyEvent.VK_SPACE) {
-            model.jump();
-        } else if (kc == KeyEvent.VK_P) {
-            model.togglePause();
-        } else if (kc == KeyEvent.VK_R) {
-            model.reset();
-        } else if (kc == KeyEvent.VK_ESCAPE) {
-            System.exit(0);
-        }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        // If game over, clicking the view restarts
-        if (model.isGameOver()) {
-            model.reset();
-        }
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
     }
 }
