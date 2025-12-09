@@ -46,15 +46,13 @@ class GameView extends JPanel {
 
 
         Image hamsterImg = new ImageIcon(getClass().getResource("hamster_clean.png")).getImage();
-        Rectangle d = model.getHamsterBounds();
-        int hamsterSize = Math.max(d.width, d.height);
-        g2.drawImage(hamsterImg, d.x, d.y, hamsterSize, hamsterSize, null);
+        Rectangle hamster = model.getHamsterBounds();
+        int hamsterSize = Math.max(hamster.width, hamster.height);
+        g2.drawImage(hamsterImg, hamster.x, hamster.y, hamsterSize, hamsterSize, null);
 
-// рисуем кактусы
-        for (Rectangle r : model.getObstacles()) {
-            drawCactus(g2, r);
+        for (Rectangle cactus : model.getObstacles()) {
+            drawCactus(g2, cactus);
         }
-
 
         // рисуем счёт
         g2.setColor(Color.black);
@@ -93,7 +91,6 @@ class GameView extends JPanel {
         g2.setColor(Color.white);
         g2.setFont(new Font("SansSerif", Font.BOLD, 28));
 
-        FontMetrics fm = g2.getFontMetrics();
         int textY = y + 35;
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];

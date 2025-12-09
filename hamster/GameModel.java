@@ -34,7 +34,7 @@ class GameModel {
     boolean gameOver = false;
     long score = 0; // score increases with time
 
-    Random rnd = new Random();
+    Random random = new Random();
 
     public GameModel(int width, int height) {
         this.width = width;
@@ -51,7 +51,7 @@ class GameModel {
         obstacles.clear();
         obstacleSpeed = 6;
         spawnCounter = 0;
-        nextSpawnIn = 60 + rnd.nextInt(80);
+        nextSpawnIn = 60 + random.nextInt(80);
         paused = false;
         gameOver = false;
         score = 0;
@@ -108,7 +108,7 @@ class GameModel {
 
         if (spawnCounter >= nextSpawnIn) {
             spawnCounter = 0;
-            nextSpawnIn = spawnIntervalMin + rnd.nextInt(spawnIntervalMax - spawnIntervalMin + 1);
+            nextSpawnIn = spawnIntervalMin + random.nextInt(spawnIntervalMax - spawnIntervalMin + 1);
             spawnObstacle();
         }
     }
@@ -137,8 +137,8 @@ class GameModel {
     //создаёт новый кактус
     private void spawnObstacle() {
         // Randomize obstacle size
-        int w = 20 + rnd.nextInt(30);
-        int h = 30 + rnd.nextInt(40);
+        int w = 20 + random.nextInt(30);
+        int h = 30 + random.nextInt(40);
         int x = width + 20;
         int y = groundY - h;
         Rectangle r = new Rectangle(x, y, w, h);
